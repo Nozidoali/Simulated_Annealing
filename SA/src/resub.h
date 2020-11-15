@@ -11,7 +11,7 @@
 #include <queue>
 #include <map>
 #include "abcApi.h"
-#include "refactor.h"
+#include "all.h"
 
 
 using namespace std;
@@ -87,14 +87,7 @@ extern "C" Dec_Graph_t * Abc_ManResubQuit1( Abc_Obj_t * pRoot, Abc_Obj_t * pObj0
 extern "C" Dec_Graph_t * Abc_ManResubQuit21( Abc_Obj_t * pRoot, Abc_Obj_t * pObj0, Abc_Obj_t * pObj1, Abc_Obj_t * pObj2, int fOrGate );
 extern "C" Dec_Graph_t * Abc_ManResubQuit2( Abc_Obj_t * pRoot, Abc_Obj_t * pObj0, Abc_Obj_t * pObj1, Abc_Obj_t * pObj2, int fOrGate );
 extern "C" Dec_Graph_t * Abc_ManResubQuit3( Abc_Obj_t * pRoot, Abc_Obj_t * pObj0, Abc_Obj_t * pObj1, Abc_Obj_t * pObj2, Abc_Obj_t * pObj3, int fOrGate );
-
-
-// My own functions
-void SA_Resub(double * temp, double ratio, WHY_Man* pMan,bool random);
-Dec_Graph_t * EvalNodeRsb(Abc_ManRes_t * p, Abc_Obj_t * pRoot, Vec_Ptr_t * vLeaves);
-
-
-
+extern abctime s_ResubTime;
 
 int Abc_ManResubCollectDivs( Abc_ManRes_t * p, Abc_Obj_t * pRoot, Vec_Ptr_t * vLeaves, int Required )
 {
@@ -1063,9 +1056,37 @@ p->timeRes3 += Abc_Clock() - clk;
 }
 
 
+void Abc_ManResubPrint( Abc_ManRes_t * p )
+{
+    printf( "Used constants    = %6d.             ", p->nUsedNodeC );          ABC_PRT( "Cuts  ", p->timeCut );
+    printf( "Used replacements = %6d.             ", p->nUsedNode0 );          ABC_PRT( "Resub ", p->timeRes );
+    printf( "Used single ORs   = %6d.             ", p->nUsedNode1Or );        ABC_PRT( " Div  ", p->timeDiv );
+    printf( "Used single ANDs  = %6d.             ", p->nUsedNode1And );       ABC_PRT( " Mffc ", p->timeMffc );
+    printf( "Used double ORs   = %6d.             ", p->nUsedNode2Or );        ABC_PRT( " Sim  ", p->timeSim );
+    printf( "Used double ANDs  = %6d.             ", p->nUsedNode2And );       ABC_PRT( " 1    ", p->timeRes1 );
+    printf( "Used OR-AND       = %6d.             ", p->nUsedNode2OrAnd );     ABC_PRT( " D    ", p->timeResD );
+    printf( "Used AND-OR       = %6d.             ", p->nUsedNode2AndOr );     ABC_PRT( " 2    ", p->timeRes2 );
+    printf( "Used OR-2ANDs     = %6d.             ", p->nUsedNode3OrAnd );     ABC_PRT( "Truth ", p->timeTruth ); //ABC_PRT( " 3    ", p->timeRes3 );
+    printf( "Used AND-2ORs     = %6d.             ", p->nUsedNode3AndOr );     ABC_PRT( "AIG   ", p->timeNtk );
+    printf( "TOTAL             = %6d.             ", p->nUsedNodeC +
+                                                     p->nUsedNode0 +
+                                                     p->nUsedNode1Or +
+                                                     p->nUsedNode1And +
+                                                     p->nUsedNode2Or +
+                                                     p->nUsedNode2And +
+                                                     p->nUsedNode2OrAnd +
+                                                     p->nUsedNode2AndOr +
+                                                     p->nUsedNode3OrAnd +
+                                                     p->nUsedNode3AndOr
+                                                   );                          ABC_PRT( "TOTAL ", p->timeTotal );
+    printf( "Total leaves   = %8d.\n", p->nTotalLeaves );
+    printf( "Total divisors = %8d.\n", p->nTotalDivs );
+//    printf( "Total gain     = %8d.\n", p->nTotalGain );
+    printf( "Gain           = %8d. (%6.2f %%).\n", p->nNodesBeg-p->nNodesEnd, 100.0*(p->nNodesBeg-p->nNodesEnd)/p->nNodesBeg );
+}
 
-
-
+// My own functions
+Dec_Graph_t * EvalNodeRes( Abc_ManRes_t * p, Abc_Obj_t * pRoot, Vec_Ptr_t * vLeaves);
 
 
 #endif
