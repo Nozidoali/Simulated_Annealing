@@ -64,7 +64,7 @@ void WHY_Stop ( WHY_Man * pMan ) {
 
 
 // refactor the whole network once with SA
-void SA_Refactor ( double * temp, double ratio, WHY_Man* pMan, bool random) {
+void SA_Refactor ( double temp, WHY_Man* pMan ) {
 
     Abc_Ntk_t * pNtk = pMan->pNtk;
     int nNodeSizeMax = 10;
@@ -109,8 +109,8 @@ void SA_Refactor ( double * temp, double ratio, WHY_Man* pMan, bool random) {
 
     srand( time(NULL) );
 
-    if (random)
-        random_shuffle( vec.begin(), vec.end() );
+    // if (random)
+    random_shuffle( vec.begin(), vec.end() );
 
 
     for ( int i=0;i<vec.size();i++ )
@@ -158,12 +158,11 @@ pManRef->timeRes += Abc_Clock() - clk;
 //         cout << pManRef->nLastGain << endl;
         // added by MXY
         if (pManRef->nLastGain < 0) {
-            double threshold = exp(pManRef->nLastGain / *temp);
+            double threshold = exp(pManRef->nLastGain / temp);
             double rand_num = rand() / ( RAND_MAX + 1.0 );
             if (threshold <= rand_num)
                 continue;
         }
-        *temp *= ratio;
         // acceptable replacement found, update the graph
 clk = Abc_Clock();
         Dec_GraphUpdateNetwork( pNode, pFForm, fUpdateLevel, pManRef->nLastGain );
@@ -171,8 +170,9 @@ pManRef->timeNtk += Abc_Clock() - clk;
         Dec_GraphFree( pFForm );
 
         // Print result
-        WHY_PrintStats ( pMan );
-        cout << endl;
+//        WHY_PrintStats ( pMan );
+//        cout << endl;
+        break;
     }
     Extra_ProgressBarStop( pProgress );
 pManRef->timeTotal = Abc_Clock() - clkStart;
@@ -444,7 +444,7 @@ int Dec_GraphToNetworkCount( Abc_Obj_t * pRoot, Dec_Graph_t * pGraph, int NodeMa
 
 
 // resub the whole network once with SA
-void SA_Resub( double * temp, double ratio, WHY_Man* pMan, bool random )
+void SA_Resub( double temp, WHY_Man* pMan )
 {
 
 
@@ -501,8 +501,7 @@ void SA_Resub( double * temp, double ratio, WHY_Man* pMan, bool random )
 
     srand( time(NULL) );
 
-    if (random)
-        random_shuffle( vec.begin(), vec.end() );
+    random_shuffle( vec.begin(), vec.end() );
 
 
     for ( int i=0;i<vec.size();i++ )
@@ -575,8 +574,9 @@ pManRes->timeNtk += Abc_Clock() - clk;
         Dec_GraphFree( pFForm );
 
         // Print result
-        WHY_PrintStats ( pMan );
-        cout << endl;
+        // WHY_PrintStats ( pMan );
+        // cout << endl;
+        break;
     }
     Extra_ProgressBarStop( pProgress );
 pManRes->timeTotal = Abc_Clock() - clkStart;
@@ -738,7 +738,7 @@ p->timeRes3 += Abc_Clock() - clk;
 
 
 // rewrite the whole network once with SA
-void SA_Rewrite( double * temp, double ratio, WHY_Man* pMan, bool random )
+void SA_Rewrite( double temp, WHY_Man* pMan )
 {
 
     Abc_Ntk_t * pNtk = pMan->pNtk;
@@ -794,8 +794,7 @@ Rwr_ManAddTimeCuts( pManRwr, Abc_Clock() - clk );
 
     srand( time(NULL) );
 
-    if (random)
-        random_shuffle( vec.begin(), vec.end() );
+    random_shuffle( vec.begin(), vec.end() );
 
 
     for ( int i=0;i<vec.size();i++ )
@@ -828,7 +827,7 @@ Rwr_ManAddTimeCuts( pManRwr, Abc_Clock() - clk );
             continue;
 
         // for each cut, try to resynthesize it
-        nGain = EvalNodeRewrite( pManRwr, pManCut, pNode, temp, ratio);
+        nGain = EvalNodeRewrite( pManRwr, pManCut, pNode, temp, 1.0);
 //        if ( !(nGain > 0 || (nGain == 0 && fUseZeros)) )
         if ( nGain == -2147483648)
             continue;
@@ -856,6 +855,7 @@ Rwr_ManAddTimeUpdate( pManRwr, Abc_Clock() - clk );
                 // Print result
 //        WHY_PrintStats ( pMan );
 //        cout << endl;
+        break;
     }
     Extra_ProgressBarStop( pProgress );
 Rwr_ManAddTimeTotal( pManRwr, Abc_Clock() - clkStart );
@@ -895,7 +895,7 @@ Rwr_ManAddTimeTotal( pManRwr, Abc_Clock() - clkStart );
     return;
 }
 
-int EvalNodeRewrite( Rwr_Man_t * p, Cut_Man_t * pManCut, Abc_Obj_t * pNode, double * temp, double ratio)
+int EvalNodeRewrite( Rwr_Man_t * p, Cut_Man_t * pManCut, Abc_Obj_t * pNode, double temp, double ratio)
 {
     int fUpdateLevel = 1;
     int fUseZeros = 1;
@@ -1010,12 +1010,12 @@ p->timeRes += Abc_Clock() - clk;
 
      // added by MXY
     if (GainBest < 0) {
-            double threshold = exp(GainBest / *temp);
+            double threshold = exp(GainBest / temp);
             double rand_num = rand() / ( RAND_MAX + 1.0 );
             if (threshold <= rand_num)
                 return initGain;
     }
-    *temp *= ratio;
+    // temp *= ratio;
 
 
 
@@ -1109,7 +1109,7 @@ Dec_Graph_t * Rwr_CutEvaluate( Rwr_Man_t * p, Abc_Obj_t * pRoot, Cut_Cut_t * pCu
 }
 
 
-void SA_Balance ( double * temp, double ratio, WHY_Man* pMan, bool random) {
+void SA_Balance ( double temp, WHY_Man* pMan ) {
     Abc_NtkBalance  ( pMan->pNtk, 0, 0, 1 );
 }
 
