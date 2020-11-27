@@ -1,0 +1,1 @@
+./main -f benchmarks/arithmetic/bar.blif -i 100000 -r 0.99999 -t 1 -m 1 -o "b;rw;rf;rs" > test.csv

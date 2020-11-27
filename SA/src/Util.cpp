@@ -171,8 +171,8 @@ pManRef->timeNtk += Abc_Clock() - clk;
         Dec_GraphFree( pFForm );
 
         // Print result
-        WHY_PrintStats ( pMan );
-        cout << endl;
+        // WHY_PrintStats ( pMan );
+        // cout << endl;
     }
     Extra_ProgressBarStop( pProgress );
 pManRef->timeTotal = Abc_Clock() - clkStart;
@@ -575,8 +575,8 @@ pManRes->timeNtk += Abc_Clock() - clk;
         Dec_GraphFree( pFForm );
 
         // Print result
-        WHY_PrintStats ( pMan );
-        cout << endl;
+        // WHY_PrintStats ( pMan );
+        // cout << endl;
     }
     Extra_ProgressBarStop( pProgress );
 pManRes->timeTotal = Abc_Clock() - clkStart;
@@ -854,8 +854,8 @@ Rwr_ManAddTimeUpdate( pManRwr, Abc_Clock() - clk );
 //            Abc_PlaceUpdate( vAddedCells, vUpdatedNets );
 
                 // Print result
-        WHY_PrintStats ( pMan );
-        cout << endl;
+        //    WHY_PrintStats ( pMan );
+        // cout << endl;
     }
     Extra_ProgressBarStop( pProgress );
 Rwr_ManAddTimeTotal( pManRwr, Abc_Clock() - clkStart );

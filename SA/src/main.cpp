@@ -12,8 +12,10 @@ parser Cmdline_Parser(int argc, char * argv[])
     option.add <string> ("filename", 'f', "Original Circuit file", true);
     option.add <int> ("iteration", 'i', "Iteration times", false, 1);
     option.add <double> ("ratio", 'r', "Annealing rate", false, 0.99);
+    option.add <double> ("temperature", 't', "Initial Temperature", false, 1);
     option.add <bool> ("random", 'm', "Whether random order", false, false);
-    option.add <string> ("operation", 'o',"Operation sequence (\"rw;rf;rs;b...\")", false, "rw");
+    option.add <string> ("command", 'c',"Operation sequence (\"rw;rf;rs;b...\")", false, "rw");
+    option.add <string> ("output", 'o', "Output Circuit file", true);
 
     option.parse_check(argc, argv);
     return option;
@@ -23,7 +25,7 @@ vector<int> split(string str,string pattern)
 {
   string::size_type pos;
   vector<int> result;
-  str+=pattern;//À©Õ¹×Ö·û´®ÒÔ·½±ã²Ù×÷
+  str+=pattern;//ï¿½ï¿½Õ¹ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   int size=str.size();
 
   for(int i=0; i<size; i++)
@@ -56,29 +58,28 @@ int main(int argc, char * argv[])
     // command line parser
     parser option = Cmdline_Parser(argc, argv);
     string filename = option.get <string> ("filename");
+    string output_filename = option.get <string> ("output");
     int n = option.get <int> ("iteration");
     double ratio = option.get <double> ("ratio");
     bool random = option.get <bool> ("random");
-    string operation = option.get<string> ("operation");
+    string operation = option.get<string> ("command");
 
     // specify the operation order
     vector<int> operation_Sequence = split(operation,";");
 
-    void (* SA_Operation[4])(double*, double, WHY_Man*,bool); // ¶¨ÒåÒ»¸ö³¤¶ÈÎª4µÄº¯ÊýÖ¸ÕëÊý×é
+    void (* SA_Operation[4])(double*, double, WHY_Man*,bool); // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª4ï¿½Äºï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     SA_Operation[0] = SA_Balance;
     SA_Operation[1] = SA_Rewrite;
     SA_Operation[2] = SA_Refactor;
     SA_Operation[3] = SA_Resub;
 
 
-    double temperature = 1;
+    double temperature = option.get <double> ("temperature");
 
     WHY_Man * pMan = WHY_Start();
+
     char* Filename = (char*) filename.c_str();
-
     WHY_ReadBlif ( pMan, Filename );
-
-    WHY_PrintStats ( pMan );
 //
 //    cout << endl;
 
@@ -88,14 +89,13 @@ int main(int argc, char * argv[])
             // SA_Rewrite ( &temperature,ratio,pMan,random );
             // Abc_NtkResubstitute( pMan->pNtk, 8, 1, 0, 1, 0, 0 );
             SA_Operation[operation_Sequence[j]] (&temperature,ratio,pMan,random);
-
+            WHY_PrintStats ( pMan );
+            cout << endl;
         }
     }
 
-
-    WHY_PrintStats ( pMan );
-
-    // WHY_WriteBlif ( pMan, Filename );
+    char* output_Filename = (char*) output_filename.c_str();
+    WHY_WriteBlif ( pMan, output_Filename );
     cout << endl;
     WHY_Stop( pMan );
     return 0;
